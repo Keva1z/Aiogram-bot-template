@@ -6,5 +6,5 @@ from database.models.enums import Role
 
 
 class UserUpdate(BaseModel):
-    role: Optional[Role] = None
+    role: Role = Role.USER
     username: Optional[str] = None

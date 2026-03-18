@@ -11,9 +11,8 @@ from aiogram.types import (
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from config import config
-from database.methods.create import create_user
-from database.methods.update import update_user
 from database.models import Role
+from database.repositories.user import UserUpdate, create_user, update_user
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +44,7 @@ async def cmd_start(message: Message, session: AsyncSession, state: FSMContext):
 
     # Update owner role
     if user.userid in config.SUPERADMIN_IDS and user.role != Role.SUPERADMIN:
-        user = await update_user.role(session, user.userid, Role.SUPERADMIN)
+        user = await update_user(session, user.userid, UserUpdate(role=Role.SUPERADMIN))
         if user is None:
             return
 

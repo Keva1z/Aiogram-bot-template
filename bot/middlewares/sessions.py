@@ -16,8 +16,7 @@ class DbSessionMiddleware(BaseMiddleware):
         event: TelegramObject,
         data: Dict[str, Any],
     ) -> Any:
-        # Открываем сессию на каждый запрос
+        # Open session on every request
         async with self.session_pool() as session:
-            # Кладем сессию в data, чтобы она попала в аргументы хэндлера
             data["session"] = session
             return await handler(event, data)

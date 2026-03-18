@@ -11,12 +11,14 @@ from ..models.user import User
 
 
 async def get_by_userid(session: AsyncSession, userid: int) -> User | None:
+    """Get user by USERID"""
     query = select(User).where(User.userid == userid)
     result = await session.execute(query)
     return result.scalar_one_or_none()
 
 
 async def get_all(session: AsyncSession) -> list[User]:
+    """Get all users"""
     query = select(User)
     result = await session.execute(query)
     return list(result.scalars().all())
@@ -25,6 +27,7 @@ async def get_all(session: AsyncSession) -> list[User]:
 async def update_user(
     session: AsyncSession, userid: int, update: UserUpdate
 ) -> User | None:
+    """Update user with schema"""
     user = await get_by_userid(session, userid)
 
     if user is None:
@@ -40,7 +43,8 @@ async def update_user(
     return user
 
 
-async def create(session: AsyncSession, userid: int, **data) -> User:
+async def create_user(session: AsyncSession, userid: int, **data) -> User:
+    """Create new user"""
     user = User(userid=userid, **data)
     session.add(user)
 
@@ -60,6 +64,7 @@ async def create(session: AsyncSession, userid: int, **data) -> User:
 
 
 async def delete(session: AsyncSession, userid: int) -> bool:
+    """Delete user"""
     user = await get_by_userid(session, userid)
 
     if user is None:
