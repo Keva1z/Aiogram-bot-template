@@ -1,5 +1,5 @@
-from enum import Enum, auto
-from sqlalchemy import Enum as SQLEnum
+from enum import Enum
+
 
 class Role(Enum):
     USER = "USER"

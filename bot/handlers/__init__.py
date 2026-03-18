@@ -1,5 +1,6 @@
 from aiogram import Dispatcher
-from bot.handlers import superadmin, admin, start, user
+
+from bot.handlers import admin, start, superadmin, user
 
 __all__ = ["superadmin", "admin", "start", "user"]
 

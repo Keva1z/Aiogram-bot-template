@@ -8,11 +8,12 @@ from aiogram.types import (
     BotCommandScopeChat,
     Message,
 )
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from config import config
 from database.methods.create import create_user
 from database.methods.update import update_user
 from database.models import Role
-from sqlalchemy.ext.asyncio import AsyncSession
 
 logger = logging.getLogger(__name__)
 

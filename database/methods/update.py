@@ -1,9 +1,10 @@
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from database.models import User, Role
+from database.models import Role, User
 
 # Example:
+
 
 class update_user:
     @staticmethod

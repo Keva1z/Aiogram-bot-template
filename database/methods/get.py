@@ -1,15 +1,15 @@
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from database.models import User, Role
+from database.models import User
 
 
 class get_user:
     @staticmethod
     async def by_userid(session: AsyncSession, userid: int) -> User | None:
-            return (
-                await session.execute(select(User).where(User.userid == userid))
-            ).scalar_one_or_none()
+        return (
+            await session.execute(select(User).where(User.userid == userid))
+        ).scalar_one_or_none()
 
     @staticmethod
     async def all(session: AsyncSession):

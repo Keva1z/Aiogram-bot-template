@@ -2,6 +2,7 @@ import asyncio
 import logging
 
 from aiogram import Bot, Dispatcher
+
 from bot.handlers import setup_handlers
 from bot.middlewares.sessions import DbSessionMiddleware
 from config import config

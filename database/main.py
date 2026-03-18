@@ -1,9 +1,10 @@
 import logging
 import uuid
 
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+
 from config import config
 from database.models import Base
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 logging.basicConfig(level=logging.INFO)
 
