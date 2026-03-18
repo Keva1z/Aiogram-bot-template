@@ -8,12 +8,11 @@ from aiogram.types import (
     BotCommandScopeChat,
     Message,
 )
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from config import config
 from database.methods.create import create_user
 from database.methods.update import update_user
 from database.models import Role
+from sqlalchemy.ext.asyncio import AsyncSession
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +32,8 @@ admin_commands = [
 @router.message(CommandStart())
 async def cmd_start(message: Message, session: AsyncSession, state: FSMContext):
     """Handle /start command"""
-    if not message.from_user or not message.bot: return
+    if not message.from_user or not message.bot:
+        return
 
     logger.info(f"User {message.from_user.id} started bot")
 
@@ -43,9 +43,10 @@ async def cmd_start(message: Message, session: AsyncSession, state: FSMContext):
     await state.clear()
 
     # Update owner role
-    if user.userid in config.superadmin_ids and user.role != Role.SUPERADMIN:
+    if user.userid in config.SUPERADMIN_IDS and user.role != Role.SUPERADMIN:
         user = await update_user.role(session, user.userid, Role.SUPERADMIN)
-        if user is None: return
+        if user is None:
+            return
 
     commands = admin_commands if user.role in [Role.SUPERADMIN] else user_commands
     await message.bot.set_my_commands(

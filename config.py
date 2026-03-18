@@ -1,31 +1,37 @@
 import logging
-import os
 
-import dotenv
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
-dotenv.load_dotenv(override=True)
 logger = logging.getLogger(__name__)
 
-class Database:
-    DB_USER = os.getenv("DB_USER", "user")
-    DB_PASSWORD = os.getenv("DB_PASSWORD", "password")
-    DB_NAME = os.getenv("DB_NAME", "database")
-    DB_HOST = os.getenv("DB_HOST", "localhost")
-    DB_PORT = int(os.getenv("DB_PORT", "5432"))
+
+class DatabaseSettings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", env_prefix="DB_", extra="ignore")
+
+    USER: str = "User"
+    PASSWORD: str = "password"
+    NAME: str = "database"
+    HOST: str = "localhost"
+    PORT: int = 5432
 
     @property
-    def url(self):
-        return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
-    
-    @property
-    def url_alembic(self):
-        return f"postgresql://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+    def url(self) -> str:
+        return f"postgresql+asyncpg://{self.USER}:{self.PASSWORD}@{self.HOST}:{self.PORT}/{self.NAME}"
 
-class Config:
-    bot_token = os.getenv("BOT_TOKEN", "")
-    database = Database()
-    superadmin_ids: list[int] = list(
-        map(int, os.getenv("SUPERADMIN_IDS", "").split(","))
+    @property
+    def url_alembic(self) -> str:
+        return f"postgresql://{self.USER}:{self.PASSWORD}@{self.HOST}:{self.PORT}/{self.NAME}"
+
+
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=".env", env_file_encoding="utf-8", extra="ignore"
     )
 
-config = Config()
+    BOT_TOKEN: str = "..."
+    SUPERADMIN_IDS: list[int] = []
+    database: DatabaseSettings = DatabaseSettings()
+
+
+config = Settings()
+logger.debug("Initialized config")

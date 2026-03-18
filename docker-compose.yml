@@ -1,17 +1,62 @@
 services:
   db:
     image: postgres:18.1-alpine3.23
-    container_name: database
     restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "psql -U ${DB_USER} -d ${DB_NAME} -c 'SELECT 1'"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    command:
+        - postgres
+        # the following lines tell pg server to adjust the TCP keepalive settings explicitly
+        # instead of reading from the container default, which is likely idle=7200 (seconds).
+        # The default value in the container is usually much larger than docker-swarm's IPVS default,
+        # which is 900. (And this is the culprit of the connection will be closed after ~15mins)
+        - -c
+        - 'tcp_keepalives_idle=600'
+        - -c
+        - 'tcp_keepalives_interval=30'
+        - -c
+        - 'tcp_keepalives_count=10'
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
     ports:
       - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  migrations:
+    build:
+        context: .
+        dockerfile: Dockerfile
+        target: migrations
+    env_file: .env
+    depends_on:
+        db:
+          condition: service_healthy
+
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: bot
+    restart: always
+    env_file: .env
+    depends_on:
+      migrations:
+        condition: service_completed_successfully
+      db:
+        condition: service_healthy
 
   adminer:
     image: adminer
     restart: always
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
+
+volumes:
+  postgres_data:

@@ -1,16 +1,13 @@
 import asyncio
 import logging
-import os
 
 from aiogram import Bot, Dispatcher
-
-from config import config
 from bot.handlers import setup_handlers
+from bot.middlewares.sessions import DbSessionMiddleware
+from config import config
 from database.main import async_main, async_session
 
-from bot.middlewares.sessions import DbSessionMiddleware
-
-bot = Bot(token=config.bot_token)
+bot = Bot(token=config.BOT_TOKEN)
 dp = Dispatcher(bot=bot)
 
 logging.basicConfig(level=logging.INFO)
@@ -33,4 +30,7 @@ async def main() -> None:
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except (KeyboardInterrupt, SystemExit):
+        logging.warning("Bot stopped!")

@@ -18,9 +18,9 @@ uv sync
 ## Build
 
 1. Create .env file & fill it with your data shown in .env.sample
-2. Run database `docker-compose up -d`
-    - You can add volume to make data persistent
+2. Run database & bot `docker compose up -d --build`
     - Use `http://localhost:8080` for adminer. **Note:** use `db` as server
+    - To remove all data use `docker compose down -v`, it will delete volumes
 3. Run alembic migrations `alembic upgrade head`
     - After changes in models use `alembic revision --autogenerate -m "text"` and then `alembic upgrade head`
 4. Run `uv run main.py`

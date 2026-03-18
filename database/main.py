@@ -1,9 +1,9 @@
-import logging, uuid
-
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine, AsyncSession
+import logging
+import uuid
 
 from config import config
 from database.models import Base
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 logging.basicConfig(level=logging.INFO)
 
@@ -11,12 +11,15 @@ engine = create_async_engine(
     url=config.database.url,
     echo=False,
     connect_args={
-		"prepared_statement_name_func": lambda: f"__asyncpg_{uuid.uuid4()}__",
-		"statement_cache_size": 0,
-		"prepared_statement_cache_size": 0,
-	},
+        "prepared_statement_name_func": lambda: f"__asyncpg_{uuid.uuid4()}__",
+        "statement_cache_size": 0,
+        "prepared_statement_cache_size": 0,
+    },
+    pool_pre_ping=True,
+    pool_recycle=300,
 )
 async_session = async_sessionmaker(engine, expire_on_commit=False)
+
 
 async def async_main():
     async with engine.begin() as conn:
