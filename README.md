@@ -6,6 +6,7 @@
 - Aiogram 3.x
 - SQLAlchemy & Alembic
 - PostgreSQL
+- Pydantic
 
 Install & Run using [UV](https://docs.astral.sh/uv/getting-started/installation/)
 
@@ -21,11 +22,7 @@ uv sync
 2. Run database & bot `docker compose up -d --build`
     - Use `http://localhost:8080` for adminer. **Note:** use `db` as server
     - To remove all data use `docker compose down -v`, it will delete volumes
-3. Run alembic migrations `alembic upgrade head`
-    - After changes in models use `alembic revision --autogenerate -m "text"` and then `alembic upgrade head`
-4. Run `uv run main.py`
 
-* *Build Dockerfile for your needs.
 
 ## Structure
 
@@ -34,12 +31,16 @@ assets /            # Folder for assets
 bot /
     filters /
         role.py     # Role filter
+    middlewares /   # Bot middlewares
+        sessions.py # Middleware for database sessions
     handlers /      # All bot routes
     keyboards /     # All bot keyboards
     states /        # States for FSM
 database /
-    methods /   # CRUD operations 
+    repositories /   # CRUD operations
     models /    # SQLAlchemy models (don't forget to import them in __init__.py)
+    schemas /   # Schemas for CRUD operations
+    exceptions.py   # Custom database exceptions
     main.py     # Initialization script
 alembic/        # Migration history and env.py config
 config.py   # Configuration file, takes data from .env
