@@ -2,13 +2,18 @@ import asyncio
 import logging
 
 from aiogram import Bot, Dispatcher
+from aiogram.client.default import DefaultBotProperties
+from aiogram.client.session.aiohttp import AiohttpSession
 
 from bot.handlers import setup_handlers
 from bot.middlewares.sessions import DbSessionMiddleware
 from config import config
 from database.main import async_main, async_session
 
-bot = Bot(token=config.BOT_TOKEN)
+properties = DefaultBotProperties(parse_mode="HTML")
+session = AiohttpSession(proxy=config.PROXY_URL)
+
+bot = Bot(token=config.bot_token, properties=properties, session=session)
 dp = Dispatcher(bot=bot)
 
 logging.basicConfig(level=logging.INFO)
