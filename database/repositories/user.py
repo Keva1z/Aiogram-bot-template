@@ -57,7 +57,7 @@ async def create_user(session: AsyncSession, userid: int, **data) -> User:
         if user is not None:
             return user
 
-        raise UserCreateError()
+        raise UserCreateError() from None
     else:
         await session.refresh(user)
         return user

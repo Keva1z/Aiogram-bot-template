@@ -13,7 +13,7 @@ def _getrepr(object: Any) -> str:
 
 class Base(AsyncAttrs, DeclarativeBase):
     repr_cols_num = 3
-    repr_cols = tuple()
+    repr_cols = ()
 
     def __repr__(self) -> str:
         cols = []

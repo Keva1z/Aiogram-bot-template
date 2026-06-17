@@ -1,5 +1,4 @@
 import logging
-from typing import Optional
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -29,7 +28,7 @@ class Settings(BaseSettings):
         env_file=".env", env_file_encoding="utf-8", extra="ignore"
     )
 
-    PROXY_URL: Optional[str] = None
+    PROXY_URL: str | None = None
     BOT_TOKEN: str = "..."
     SUPERADMIN_IDS: list[int] = []
     database: DatabaseSettings = DatabaseSettings()

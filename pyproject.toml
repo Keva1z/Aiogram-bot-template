@@ -1,9 +1,9 @@
 [project]
-name = "template-base"
+name = "Bot-Template"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.14"
 dependencies = [
     "aiogram>=3.24.0",
     "alembic>=1.18.0",
@@ -11,4 +11,64 @@ dependencies = [
     "psycopg2-binary>=2.9.11",
     "pydantic-settings>=2.13.1",
     "sqlalchemy>=2.0.45",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py314"
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+skip-magic-trailing-comma = false
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "F",
+    "I",
+    "UP",
+    "B",
+    "SIM",
+    "C4",
+    "RET",
+    "RUF",
+]
+
+ignore = [
+    "E501",
+    "F403",
+    "F405"
+]
+
+fixable = ["ALL"]
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+
+[tool.ty.environment]
+python-version = "3.14"
+
+[tool.ty.src]
+root = ["src", "."]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = [
+    "-ra",
+]
+
+[tool.coverage.run]
+branch = true
+
+[tool.coverage.report]
+skip_empty = true
+show_missing = true
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.6.0",
+    "ruff>=0.15.17",
 ]

@@ -2,8 +2,8 @@ import logging
 
 from aiogram import Router
 
-from bot.filters.role import RoleFilter
-from database.models import Role
+# from bot.filters.role import RoleFilter
+# from database.models import Role
 
 # User routers
 # from . import ...

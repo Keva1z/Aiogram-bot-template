@@ -2,7 +2,7 @@ from aiogram import Dispatcher
 
 from bot.handlers import admin, start, superadmin, user
 
-__all__ = ["superadmin", "admin", "start", "user"]
+__all__ = ["admin", "start", "superadmin", "user"]
 
 
 def setup_handlers(dp: Dispatcher):
