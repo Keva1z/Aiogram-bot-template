@@ -1,48 +1,162 @@
 # Python template for bots
 
+Template for Telegram bots with modern Python tooling.
+
 ## Tech stack
 
-- **Python 3.13 & higher**
-- Aiogram 3.x
-- SQLAlchemy & Alembic
-- PostgreSQL
-- Pydantic
+- **Python 3.13+**
+- **Aiogram 3.x**
+- **SQLAlchemy**
+- **Alembic**
+- **PostgreSQL**
+- **Pydantic**
+- **uv** — dependency management
+- **Ruff** — linting & formatting
+- **pre-commit** — git hooks
+- **Docker / Docker Compose**
 
-Install & Run using [UV](https://docs.astral.sh/uv/getting-started/installation/)
+---
+
+## Development setup
+
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/)
+
+Create virtual environment and install dependencies:
 
 ```bash
-uv venv
-source .venv/Scripts/activate
 uv sync
 ```
 
-## Build
-
-1. Create .env file & fill it with your data shown in .env.sample
-2. Run database & bot `docker compose up -d --build`
-    - Use `http://localhost:8080` for adminer. **Note:** use `db` as server
-    - To remove all data use `docker compose down -v`, it will delete volumes
-
-
-## Structure
+Activate environment:
+Linux/macOS:
 
 ```bash
-assets /            # Folder for assets
+source .venv/bin/activate
+```
+
+Windows:
+
+```bash
+.venv\Scripts\activate
+```
+---
+
+## Environment
+
+Create `.env` file:
+
+```bash
+cp .env.sample .env
+```
+Fill required variables.
+
+---
+
+## Code quality
+
+This project uses:
+
+- ruff check for linting
+- ruff format for formatting
+- pre-commit hooks before commits
+
+Install git hooks:
+
+```bash
+uv run pre-commit install
+```
+
+Run hooks manually:
+```bash
+uv run pre-commit run --all-files
+```
+
+Run Ruff manually:
+```
+uv run ruff check .
+uv run ruff format .
+```
+
+---
+
+## Run with Docker
+
+Build and start services:
+
+```bash
+# Production
+docker compose up -d --build
+
+# Development
+docker compose --profile dev up -d --build
+```
+
+Services:
+
+- Bot
+- PostgreSQL
+- Alembic migrations
+- Adminer **(Development)**
+
+Adminer: `http://localhost:8080`
+
+Database server inside Docker network: `db`
+
+To stop and remove containers:
+
+```bash
+# Production
+docker compose down
+
+# Development
+docker compose --profile dev down
+```
+
+---
+
+## Database migrations
+Migrations are executed automatically before bot startup.
+
+Manual migration:
+```bash
+docker compose run --rm migrations
+```
+
+Create new migration:
+```bash
+uv run alembic revision --autogenerate -m "migration name"
+```
+
+---
+
+## Project structure
+
+```
+assets /                  # Static assets
+
 bot /
-    filters /
-        role.py     # Role filter
-    middlewares /   # Bot middlewares
-        sessions.py # Middleware for database sessions
-    handlers /      # All bot routes
-    keyboards /     # All bot keyboards
-    states /        # States for FSM
+    filters /             # Aiogram filters
+    middlewares /         # Bot middlewares
+        sessions.py       # Database session middleware
+    handlers /            # Bot routes
+    keyboards /           # Reply/inline keyboards
+    states /              # FSM states
+    services /            # Services for logic
+
 database /
-    repositories /   # CRUD operations
-    models /    # SQLAlchemy models (don't forget to import them in __init__.py)
-    schemas /   # Schemas for CRUD operations
-    exceptions.py   # Custom database exceptions
-    main.py     # Initialization script
-alembic/        # Migration history and env.py config
-config.py   # Configuration file, takes data from .env
-main.py     # Main startup file
+    queries /             # CRUD operations
+    models /              # SQLAlchemy models
+    main.py               # Database initialization
+
+alembic /
+    versions /            # Migration history
+    env.py                # Alembic configuration
+
+config.py                 # Application configuration from .env
+main.py                   # Application entry point
+
+pyproject.toml            # Dependencies and tooling config
+uv.lock                   # Locked dependencies
+docker-compose.yml        # Local infrastructure
+Dockerfile                # Container build
 ```
