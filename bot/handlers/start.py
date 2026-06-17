@@ -10,9 +10,10 @@ from aiogram.types import (
 )
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from bot.services.users import get_or_create_user
 from config import config
 from database.models import Role
-from database.repositories.user import UserUpdate, create_user, update_user
+from database.queries.user import UserUpdate, update_user
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +39,7 @@ async def cmd_start(message: Message, session: AsyncSession, state: FSMContext):
     logger.info(f"User {message.from_user.id} started bot")
 
     # Create user if not exists
-    user = await create_user(session, message.from_user.id)
+    user = await get_or_create_user(session, message.from_user.id)
 
     await state.clear()
 

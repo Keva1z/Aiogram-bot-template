@@ -1,13 +1,16 @@
 from typing import cast
 
+from pydantic import BaseModel
 from sqlalchemy import select
-from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database.exceptions import UserCreateError
-from database.schemas.user import UserUpdate
+from database.models.enums import Role
+from database.models.user import User
 
-from ..models.user import User
+
+class UserUpdate(BaseModel):
+    role: Role = Role.USER
+    username: str | None = None
 
 
 async def get_by_userid(session: AsyncSession, userid: int) -> User | None:
@@ -17,9 +20,11 @@ async def get_by_userid(session: AsyncSession, userid: int) -> User | None:
     return result.scalar_one_or_none()
 
 
-async def get_all(session: AsyncSession) -> list[User]:
+async def get_all(
+    session: AsyncSession, limit: int = 10, offset: int = 0
+) -> list[User]:
     """Get all users"""
-    query = select(User)
+    query = select(User).limit(limit).offset(offset)
     result = await session.execute(query)
     return list(result.scalars().all())
 
@@ -38,8 +43,6 @@ async def update_user(
     for key, value in updates.items():
         setattr(user, key, value)
 
-    await session.commit()
-    await session.refresh(user)
     return user
 
 
@@ -48,32 +51,14 @@ async def create_user(session: AsyncSession, userid: int, **data) -> User:
     user = User(userid=userid, **data)
     session.add(user)
 
-    try:
-        await session.commit()
-    except IntegrityError:
-        await session.rollback()
-
-        user = await get_by_userid(session, userid)
-        if user is not None:
-            return user
-
-        raise UserCreateError() from None
-    else:
-        await session.refresh(user)
-        return user
+    return user
 
 
-async def delete(session: AsyncSession, userid: int) -> bool:
+async def delete(session: AsyncSession, userid: int) -> None:
     """Delete user"""
     user = await get_by_userid(session, userid)
 
     if user is None:
-        return False
+        return
 
-    try:
-        await session.delete(user)
-        await session.commit()
-        return True
-    except SQLAlchemyError:
-        await session.rollback()
-        raise
+    await session.delete(user)
