@@ -1,44 +1,56 @@
-# --- Stage 0: base ---
+# syntax=docker/dockerfile:1.7
+
 FROM ghcr.io/astral-sh/uv:python3.13-bookworm-slim AS base
 
 ENV UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy \
+    UV_PROJECT_ENVIRONMENT=/app/.venv \
     PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1
+    PYTHONDONTWRITEBYTECODE=1 \
+    PATH="/app/.venv/bin:$PATH"
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y --no-install-recommends curl \
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Create Non-Priveleged user
-RUN useradd -m -u 1000 appuser
+RUN useradd \
+    --create-home \
+    --uid 1000 \
+    appuser
 
-# Install dependencies
 COPY pyproject.toml uv.lock ./
-RUN uv sync --frozen --no-install-project --no-dev --no-cache
+
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync \
+    --frozen \
+    --no-install-project \
+    --no-dev
 
 RUN chown -R appuser:appuser /app
 
-USER appuser
-ENV PATH="/app/.venv/bin:$PATH"
 
 # --- Stage 1: bot ---
 FROM base AS bot
-WORKDIR /app
-COPY bot ./bot
-COPY database ./database
-COPY assets ./assets
-COPY main.py .
-COPY config.py .
 
-CMD ["uv", "run", "main.py"]
+USER appuser
+
+COPY --chown=appuser:appuser bot ./bot
+COPY --chown=appuser:appuser database ./database
+COPY --chown=appuser:appuser assets ./assets
+COPY --chown=appuser:appuser main.py config.py ./
+
+CMD ["python", "main.py"]
+
 
 # --- Stage 2: migrations ---
 FROM base AS migrations
-WORKDIR /app
-COPY alembic ./alembic
-COPY database ./database
-COPY alembic.ini .
-COPY config.py .
-CMD ["uv", "run", "alembic", "upgrade", "head"]
+
+USER appuser
+
+COPY --chown=appuser:appuser alembic ./alembic
+COPY --chown=appuser:appuser database ./database
+COPY --chown=appuser:appuser alembic.ini config.py ./
+
+CMD ["alembic", "upgrade", "head"]
